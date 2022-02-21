@@ -44,7 +44,8 @@ client.on('ready', ()=>{
         commands = client.application?.commands
     }
 
-
+//Comand Registry
+    //quote registration
     commands?.create({
         name:'quote',
         description:'Shares a quote from a user.',
@@ -64,6 +65,7 @@ client.on('ready', ()=>{
         ]
     });
 
+    //quoteregister registration
     commands?.create({
         name:'quoteregister',
         description:'Register as a user to save quotes with the bot.',
@@ -77,14 +79,46 @@ client.on('ready', ()=>{
         ]
     });
 
+    //addquote registration
+    commands?.create({
+        //TODO
+    });
+
+    //removequote registration
+    commands?.create({
+        //TODO
+    });
+
+    //quoteunregister registration
+    commands?.create({
+        //TODO
+    });
+
+    //clear registration
+    commands?.create({
+        //TODO
+    });
+
+    //play registration
+    commands?.create({
+        //TODO
+    });
+
+    //skip registration
+    commands?.create({
+        //TODO
+    });
+
 });
 
+//Command Logic
 client.on('interactionCreate', async (interaction) => {
     if(!interaction.isCommand())
         return
     
     const { commandName, options } = interaction
 
+    //quote command
     if(commandName === 'quote'){
         const username = options.getString('username');
         const quoteid = options.getNumber('quoteid');
@@ -118,6 +152,7 @@ client.on('interactionCreate', async (interaction) => {
         });
     }
 
+    //quote registration command
     else if(commandName === 'quoteregister'){
         const username = options.getString('username');
         
@@ -149,7 +184,36 @@ client.on('interactionCreate', async (interaction) => {
             });
         }
     }
+
+    //add quote command
+    else if(commandName === 'addquote'){
+        //TODO
+    }
+
+    //remove quote command
+    else if(commandName === 'removequote'){
+        //TODO
+    }
+
+    //unregister quote user command.
+    else if(commandName === 'quoteunregister'){
+        //TODO
+    }
+
+    //play command
+    else if(commandName === 'play'){
+        //TODO
+    }
+
+    //skip command
+    else if(commandName === 'skip'){
+        //TODO
+    }
     
+    //clear command
+    else if(commandName === 'clear'){
+        //TODO
+    }
     
 });
 
