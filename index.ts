@@ -1,9 +1,21 @@
 //Import dependencies
 import DiscordJS, { Intents } from 'discord.js'
 import dotenv from 'dotenv'
-import * as Quotes from './datastore.json';
+import * as Datastore from './datastore.json';
 
-let quotes = JSON.parse(Quotes.toString());
+// console.log(typeof(Datastore));
+let quote_registry = Datastore.quote_registry;
+// console.log(typeof(quotes));
+
+// console.log(quotes)
+
+// quotes.
+
+// interface Datastore {
+//     quote_registry: [];
+// }
+
+// let quotes = JSON.parse(Datastore.toString());
 
 
 
@@ -39,29 +51,25 @@ client.on('ready', ()=>{
         commands = client.application?.commands
     }
 
-    commands?.create({
-        name:'ping',
-        description:'Plays a random quote'
-    });
 
     commands?.create({
         name:'quote',
         description:'Shares a quote from a user.',
         options: [
             {
-                name: 'userName',
-                description: 'The Name of the registered user.',
+                name: 'username',
+                description: 'The name of the registered user.',
                 required: true,
                 type: DiscordJS.Constants.ApplicationCommandOptionTypes.STRING
             },
             {
-                name: 'quoteID',
-                description: 'the id number of the quote.',
+                name: 'quoteid',
+                description: 'The id number of the quote.',
                 required: false,
                 type: DiscordJS.Constants.ApplicationCommandOptionTypes.NUMBER
             },
         ]
-    })
+    });
 
 });
 
@@ -71,30 +79,35 @@ client.on('interactionCreate', async (interaction) => {
     
     const { commandName, options } = interaction
 
-    if(commandName === 'ping'){
-        interaction.reply({
-            content: 'pong',
-            ephemeral: true,
-        });
-    }
-    else if(commandName === 'quote'){
-        const userName = options.getString('userName')!;
-        const quoteID = options.getNumber('quoteID');
+    if(commandName === 'quote'){
+        const username = options.getString('username')!;
+        const quoteid = options.getNumber('quoteid');
 
-        if(quotes.hasOwnProperty(userName) && quoteID === null){
-            const i = Math.floor(Math.random() * (quotes[userName].length))
+        await interaction.deferReply({
+
+        })
+
+        let reply_content
+
+        let userQuotes = Datastore.quote_registry.find(o => o.name === username);
+
+        if(userQuotes && quoteid === null){
+            const i = Math.floor(Math.random() * (userQuotes.quotes.length));
+            reply_content = userQuotes.quotes[i];
         }
+        else if (userQuotes && quoteid !== null){
+            reply_content = userQuotes.quotes[quoteid];
+        }
+        else{
+            reply_content = "User does not exist or isn't registered with /quote."
+        }
+
+        interaction.editReply({
+            content:`${reply_content}`
+        });
     }
     
     
 });
-
-// client.on('messageCreate', (message)=>{
-//     if(message.content === 'ping'){
-//         message.reply({
-//             content:'pong',
-//         })
-//     }
-// });
 
 client.login(process.env.TOKEN);
