@@ -1,25 +1,15 @@
 
 
 //Import dependencies
-import DiscordJS, { Intents } from 'discord.js';
-import dotenv from 'dotenv';
-import * as Datastore from './datastore.json';
-import * as fs from 'fs';
-
-// console.log(typeof(Datastore));
-// let quote_registry = Datastore.quote_registry;
-// console.log(typeof(quotes));
-
-// console.log(quotes)
-
-// quotes.
-
-// interface Datastore {
-//     quote_registry: [];
-// }
-
-// let quotes = JSON.parse(Datastore.toString());
-
+const DiscordJS = require('discord.js');
+const { Intents } = require('discord.js');
+const dotenv = require('dotenv');
+var datastore = require('./datastore.json');
+// console.log(datastore);
+// 'use strict';
+const fs = require('fs');
+// console.log(JSON.parse(fs.readFileSync('./datastore.json')));
+// let datastore = JSON.parse(fs.readFileSync('datastore.json'));
 
 
 //Configure Environment Variables
@@ -96,7 +86,7 @@ client.on('interactionCreate', async (interaction) => {
     const { commandName, options } = interaction
 
     if(commandName === 'quote'){
-        const username = options.getString('username')!;
+        const username = options.getString('username');
         const quoteid = options.getNumber('quoteid');
 
         await interaction.deferReply({
@@ -105,11 +95,16 @@ client.on('interactionCreate', async (interaction) => {
 
         let reply_content
 
-        let userQuotes = Datastore.quote_registry.find(o => o.name === username);
+        let userQuotes = datastore.quote_registry.find(o => o.name === username);
 
         if(userQuotes && quoteid === null){
-            const i = Math.floor(Math.random() * (userQuotes.quotes.length));
-            reply_content = userQuotes.quotes[i];
+            if(userQuotes.quotes.length > 0){
+                const i = Math.floor(Math.random() * (userQuotes.quotes.length));
+                reply_content = userQuotes.quotes[i];
+            }
+            else{
+                reply_content = 'This user is registered but has no quotes to share. Use /addquote to add quotes to this username.'
+            }
         }
         else if (userQuotes && quoteid !== null){
             reply_content = userQuotes.quotes[quoteid];
@@ -124,20 +119,35 @@ client.on('interactionCreate', async (interaction) => {
     }
 
     else if(commandName === 'quoteregister'){
-        const username = options.getString('username')!;
+        const username = options.getString('username');
         
-        let newUser = {
-            name:username,
-            quotes:['this user currently has no quotes registered.']
-        }
+        // let newUser = {
+        //     name:username,
+        //     quotes:['this user currently has no quotes registered.']
+        // }
 
-        Datastore.quote_registry.push(newUser);
+        datastore.quote_registry.push({ name: username, quotes: ['this user currently has no quotes registered.']});
+        // datastore.
 
-        await interaction.reply({
+        await interaction.deferReply({
             ephemeral: true
         });
 
-        fs.writeFileSync('./datastore.json', Datastore.toString());
+        // console.log(datastore);
+        // console.log(datastore.toString());
+        // console.log(JSON.parse(datastore));
+        // console.log(JSON.parse(datastore));
+
+        try{
+            fs.writeFileSync('./datastore.json', JSON.stringify(datastore, null, 4));
+            interaction.editReply({
+                content:'User Registration Successful.  Use /addquote to register quotes.'
+            });
+        } catch(err){
+            interaction.editReply({
+                content:'Registration Failed. Contact a server admin.'
+            });
+        }
     }
     
     
